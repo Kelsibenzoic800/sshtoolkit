@@ -1,0 +1,328 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base
+  title="SSH Key Generator — SSH Toolkit"
+  description="Gere pares de chaves Ed25519 e RSA direto no navegador via Web Crypto API. Sem servidor, sem rastreamento."
+>
+  <header class="page-header">
+    <h1 class="page-header__title">
+      <span class="text-accent">$</span> Key Generator
+    </h1>
+    <p class="page-header__tagline">
+      Gere chaves SSH direto no navegador via Web Crypto API.
+    </p>
+  </header>
+
+  <!-- Browser warning -->
+  <div class="warning-banner" id="crypto-warning" hidden>
+    Seu navegador não suporta geração de chaves Ed25519.
+    Use Chrome 113+, Firefox 130+ ou Safari 17.4+.
+  </div>
+
+  <!-- Key Type -->
+  <section class="section">
+    <div class="type-selector">
+      <button class="type-btn type-btn--active" data-type="ed25519">
+        <span class="type-btn__flag">Ed25519</span>
+        <span class="type-btn__label">Recomendado</span>
+      </button>
+      <button class="type-btn" data-type="rsa-2048">
+        <span class="type-btn__flag">RSA 2048</span>
+        <span class="type-btn__label">Compatibilidade</span>
+      </button>
+      <button class="type-btn" data-type="rsa-4096">
+        <span class="type-btn__flag">RSA 4096</span>
+        <span class="type-btn__label">Máxima segurança</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Options -->
+  <section class="section card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="comment">Comentário <span class="text-muted">(opcional)</span></label>
+        <input type="text" id="comment" placeholder="usuario@maquina" />
+      </div>
+    </div>
+    <div style="margin-top: 1rem;">
+      <button class="btn btn--accent" id="btn-generate">Gerar Chave</button>
+    </div>
+  </section>
+
+  <!-- Results (hidden until generated) -->
+  <div id="results" hidden>
+    <!-- Warning -->
+    <section class="section">
+      <div class="info-banner">
+        Chave gerada <strong>sem passphrase</strong>. Proteja o arquivo da chave privada.
+        Nunca compartilhe sua chave privada.
+      </div>
+    </section>
+
+    <!-- Fingerprint -->
+    <section class="section">
+      <h2 class="section__title">Fingerprint</h2>
+      <div class="code-preview-wrapper">
+        <button class="btn btn--sm copy-btn" data-copy="output-fingerprint">Copiar</button>
+        <div class="code-preview">
+          <code id="output-fingerprint"></code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Public Key -->
+    <section class="section">
+      <h2 class="section__title">Chave Pública</h2>
+      <div class="code-preview-wrapper">
+        <button class="btn btn--sm copy-btn" data-copy="output-pubkey">Copiar</button>
+        <div class="code-preview">
+          <code id="output-pubkey"></code>
+        </div>
+      </div>
+      <div class="output-actions">
+        <button class="btn btn--sm" id="btn-download-pub">Baixar .pub</button>
+      </div>
+    </section>
+
+    <!-- Private Key -->
+    <section class="section">
+      <h2 class="section__title">Chave Privada</h2>
+      <div class="code-preview-wrapper">
+        <button class="btn btn--sm copy-btn" data-copy="output-privkey">Copiar</button>
+        <div class="code-preview">
+          <code id="output-privkey"></code>
+        </div>
+      </div>
+      <div class="output-actions">
+        <button class="btn btn--sm" id="btn-download-priv">Baixar chave privada</button>
+      </div>
+    </section>
+
+    <!-- Equivalent command -->
+    <section class="section">
+      <h2 class="section__title">Comando equivalente</h2>
+      <div class="code-preview-wrapper">
+        <button class="btn btn--sm copy-btn" data-copy="output-command">Copiar</button>
+        <div class="code-preview">
+          <code id="output-command"></code>
+        </div>
+      </div>
+    </section>
+
+    <!-- How to install -->
+    <section class="section card">
+      <h2 class="section__title">Como instalar no servidor</h2>
+      <p class="text-secondary" style="font-size: 0.875rem; margin-bottom: 0.75rem;">
+        Copie a chave pública para o servidor:
+      </p>
+      <div class="code-preview-wrapper">
+        <button class="btn btn--sm copy-btn" data-copy="output-install">Copiar</button>
+        <div class="code-preview">
+          <code id="output-install"></code>
+        </div>
+      </div>
+      <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.75rem;">
+        Ou manualmente: cole o conteúdo da chave pública em
+        <code>~/.ssh/authorized_keys</code> no servidor.
+      </p>
+    </section>
+  </div>
+
+  <Footer />
+</Base>
+
+<style is:global>
+  .page-header {
+    text-align: center;
+    padding: 2rem 0 1.5rem;
+  }
+
+  .page-header__title {
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+  }
+
+  .page-header__tagline {
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  .section__title {
+    font-size: 1rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .type-selector {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .type-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: var(--font-mono);
+  }
+
+  .type-btn:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glow-sm);
+  }
+
+  .type-btn--active {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  .type-btn__flag {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .type-btn__label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .warning-banner {
+    padding: 0.75rem 1rem;
+    background: var(--danger-glow);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-banner {
+    padding: 0.75rem 1rem;
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    border-radius: var(--radius);
+    color: var(--accent);
+    font-size: 0.875rem;
+  }
+
+  .output-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn--generating {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (max-width: 640px) {
+    .type-selector {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  import { generateSshKey, isEd25519Supported } from '../lib/crypto';
+  import type { KeyType, GeneratedKey } from '../lib/crypto';
+  import { copyToClipboard } from '../lib/clipboard';
+  import { downloadFile } from '../lib/download';
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  let currentType: KeyType = 'ed25519';
+  let currentKey: GeneratedKey | null = null;
+
+  const typeBtns = document.querySelectorAll<HTMLButtonElement>('.type-btn');
+  const results = $<HTMLElement>('results');
+  const btnGenerate = $<HTMLButtonElement>('btn-generate');
+
+  // Check browser support
+  if (!isEd25519Supported()) {
+    $<HTMLElement>('crypto-warning').hidden = false;
+  }
+
+  // Type switching
+  typeBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      currentType = btn.dataset.type as KeyType;
+      typeBtns.forEach((b) => b.classList.remove('type-btn--active'));
+      btn.classList.add('type-btn--active');
+    });
+  });
+
+  // Generate
+  btnGenerate.addEventListener('click', async () => {
+    btnGenerate.textContent = 'Gerando...';
+    btnGenerate.classList.add('btn--generating');
+
+    try {
+      const comment = ($<HTMLInputElement>('comment')).value.trim();
+      currentKey = await generateSshKey(currentType, comment);
+
+      $<HTMLElement>('output-fingerprint').textContent = currentKey.fingerprint;
+      $<HTMLElement>('output-pubkey').textContent = currentKey.publicKey;
+      $<HTMLElement>('output-privkey').textContent = currentKey.privateKey;
+      $<HTMLElement>('output-command').textContent = currentKey.command;
+
+      // Install command
+      const filename = currentType === 'ed25519' ? 'id_ed25519' : 'id_rsa';
+      $<HTMLElement>('output-install').textContent = `ssh-copy-id -i ~/.ssh/${filename}.pub usuario@servidor`;
+
+      results.hidden = false;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro desconhecido';
+      alert(`Erro ao gerar chave: ${msg}`);
+    } finally {
+      btnGenerate.textContent = 'Gerar Chave';
+      btnGenerate.classList.remove('btn--generating');
+    }
+  });
+
+  // Copy buttons
+  document.querySelectorAll<HTMLButtonElement>('.copy-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.dataset.copy;
+      if (!targetId) return;
+      const target = $(targetId);
+      if (!target) return;
+      const success = await copyToClipboard(target.textContent || '');
+      const original = btn.textContent;
+      btn.textContent = success ? 'Copiado!' : 'Erro';
+      setTimeout(() => (btn.textContent = original), 1500);
+    });
+  });
+
+  // Downloads
+  $<HTMLButtonElement>('btn-download-pub').addEventListener('click', () => {
+    if (!currentKey) return;
+    const filename = currentKey.keyType === 'ed25519' ? 'id_ed25519.pub' : 'id_rsa.pub';
+    downloadFile(currentKey.publicKey + '\n', filename);
+  });
+
+  $<HTMLButtonElement>('btn-download-priv').addEventListener('click', () => {
+    if (!currentKey) return;
+    const filename = currentKey.keyType === 'ed25519' ? 'id_ed25519' : 'id_rsa';
+    downloadFile(currentKey.privateKey, filename);
+  });
+</script>
