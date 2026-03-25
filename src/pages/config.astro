@@ -293,7 +293,7 @@ import Footer from '../components/Footer.astro';
   import type { SshHostEntry } from '../lib/types';
 
   function tip(text: string): string {
-    return `<span class="tooltip"><button class="tooltip__trigger" type="button" aria-expanded="false" aria-label="Help">?</button><span class="tooltip__content" role="tooltip">${text}</span></span>`;
+    return `<span class="tooltip"><span class="tooltip__trigger" role="button" tabindex="0" aria-expanded="false" aria-label="Help">?</span><span class="tooltip__content" role="tooltip">${text}</span></span>`;
   }
 
   let hosts: SshHostEntry[] = [];
