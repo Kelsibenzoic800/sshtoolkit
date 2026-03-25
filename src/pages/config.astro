@@ -59,6 +59,11 @@ import Footer from '../components/Footer.astro';
     </div>
   </div>
 
+  <!-- Host order hint -->
+  <p class="order-hint text-muted" id="order-hint" hidden>
+    Arraste os cards para reordenar. A ordem importa — o SSH usa o primeiro Host que combinar.
+  </p>
+
   <!-- Host entries container -->
   <section id="hosts-container"></section>
 
@@ -294,6 +299,59 @@ import Footer from '../components/Footer.astro';
     gap: 0.5rem;
   }
 
+  /* Order hint */
+  .order-hint {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Drag handle */
+  .host-card__drag {
+    cursor: grab;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: 0 0.25rem;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .host-card__drag:active {
+    cursor: grabbing;
+  }
+
+  .host-card--dragging {
+    opacity: 0.4;
+    border-style: dashed;
+  }
+
+  .host-card--drag-over {
+    border-color: var(--accent);
+    box-shadow: var(--glow-sm);
+  }
+
+  /* ProxyJump chain */
+  .proxy-chain {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.75rem;
+  }
+
+  .proxy-chain__node {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .proxy-chain__arrow {
+    color: var(--text-muted);
+  }
+
   @media (max-width: 640px) {
     .actions-bar {
       flex-direction: column;
@@ -328,12 +386,14 @@ import Footer from '../components/Footer.astro';
     hostsContainer.innerHTML = '';
     emptyState.hidden = hosts.length > 0;
     outputSection.hidden = hosts.length === 0;
+    $<HTMLElement>('order-hint').hidden = hosts.length < 2;
 
     for (const host of hosts) {
       hostsContainer.appendChild(createHostCard(host, false));
     }
 
     updateOutput();
+    updateProxyChains();
   }
 
   function updateOutput() {
@@ -350,9 +410,12 @@ import Footer from '../components/Footer.astro';
     const title = entry.host || 'novo-host';
     const subtitle = [entry.user, entry.hostName].filter(Boolean).join('@') || '';
 
+    card.draggable = true;
+
     card.innerHTML = `
       <div class="host-card__header">
         <div class="host-card__header-left">
+          <span class="host-card__drag" title="Arraste para reordenar">&#x2630;</span>
           <span class="host-card__chevron">&#9654;</span>
           <span class="host-card__title">Host ${title}</span>
           <span class="host-card__subtitle">${esc(subtitle)}</span>
@@ -386,6 +449,7 @@ import Footer from '../components/Footer.astro';
             <input type="text" data-field="proxyJump" value="${esc(entry.proxyJump)}" placeholder="bastion" />
           </div>
         </div>
+        <div class="proxy-chain" data-proxy-chain="${entry.id}" hidden></div>
         <button class="advanced-toggle" data-toggle="${entry.id}">+ Opções avançadas</button>
         <div class="advanced-fields form-grid" hidden data-advanced="${entry.id}">
           <div class="form-group">
@@ -471,6 +535,7 @@ import Footer from '../components/Footer.astro';
         titleEl.textContent = `Host ${entry.host || 'novo-host'}`;
         subtitleEl.textContent = [entry.user, entry.hostName].filter(Boolean).join('@');
         updateOutput();
+        if (field === 'proxyJump') updateProxyChains();
       };
       input.addEventListener('input', handler);
       input.addEventListener('change', handler);
@@ -521,6 +586,90 @@ import Footer from '../components/Footer.astro';
     if (!value) return '';
     return value.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
+
+  // --- ProxyJump chain resolver ---
+  function resolveChain(entry: SshHostEntry): string[] {
+    const chain: string[] = ['Você'];
+    const visited = new Set<string>();
+    let jump = entry.proxyJump;
+
+    while (jump) {
+      if (visited.has(jump)) break; // circular
+      visited.add(jump);
+      chain.push(jump);
+      const jumpHost = hosts.find(h => h.host === jump);
+      jump = jumpHost?.proxyJump;
+    }
+
+    chain.push(entry.host || 'destino');
+    return chain;
+  }
+
+  function updateProxyChains() {
+    for (const entry of hosts) {
+      const el = document.querySelector(`[data-proxy-chain="${entry.id}"]`) as HTMLElement | null;
+      if (!el) continue;
+
+      if (!entry.proxyJump) {
+        el.hidden = true;
+        continue;
+      }
+
+      const chain = resolveChain(entry);
+      el.hidden = false;
+      el.innerHTML = chain
+        .map((node, i) => {
+          const nodeHtml = `<span class="proxy-chain__node">${esc(node)}</span>`;
+          return i < chain.length - 1
+            ? `${nodeHtml} <span class="proxy-chain__arrow">&rarr;</span>`
+            : nodeHtml;
+        })
+        .join(' ');
+    }
+  }
+
+  // --- Drag and drop ---
+  let draggedId: string | null = null;
+
+  hostsContainer.addEventListener('dragstart', (e) => {
+    const card = (e.target as HTMLElement).closest('.host-card') as HTMLElement | null;
+    if (!card) return;
+    draggedId = card.dataset.id!;
+    card.classList.add('host-card--dragging');
+    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+  });
+
+  hostsContainer.addEventListener('dragend', (e) => {
+    const card = (e.target as HTMLElement).closest('.host-card') as HTMLElement | null;
+    if (card) card.classList.remove('host-card--dragging');
+    hostsContainer.querySelectorAll('.host-card--drag-over').forEach(c => c.classList.remove('host-card--drag-over'));
+    draggedId = null;
+  });
+
+  hostsContainer.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const card = (e.target as HTMLElement).closest('.host-card') as HTMLElement | null;
+    if (!card || card.dataset.id === draggedId) return;
+    hostsContainer.querySelectorAll('.host-card--drag-over').forEach(c => c.classList.remove('host-card--drag-over'));
+    card.classList.add('host-card--drag-over');
+  });
+
+  hostsContainer.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const targetCard = (e.target as HTMLElement).closest('.host-card') as HTMLElement | null;
+    if (!targetCard || !draggedId) return;
+
+    const targetId = targetCard.dataset.id!;
+    if (targetId === draggedId) return;
+
+    const fromIdx = hosts.findIndex(h => h.id === draggedId);
+    const toIdx = hosts.findIndex(h => h.id === targetId);
+    if (fromIdx === -1 || toIdx === -1) return;
+
+    const [moved] = hosts.splice(fromIdx, 1);
+    hosts.splice(toIdx, 0, moved);
+    render();
+  });
 
   // --- Add Host ---
   $<HTMLButtonElement>('btn-add-host').addEventListener('click', () => {
