@@ -9,37 +9,53 @@ clientes e monte túneis. 100% client-side, zero tracking.
 
 ## Ferramentas
 
-| Ferramenta | Rota | Status |
-|------------|------|--------|
-| **Tunnel Builder** | [`/tunnels`](https://sshtoolkit.otaviomiranda.com.br/tunnels/) | Disponivel |
-| **Server Hardening** | `/hardening` | Em breve |
-| **Client Config** | `/config` | Em breve |
-| **Key Generator** | `/keygen` | Em breve |
+| Ferramenta | Rota | Descricao |
+|------------|------|-----------|
+| **Tunnel Builder** | [`/tunnels`](https://sshtoolkit.otaviomiranda.com.br/tunnels/) | Comandos de tunel SSH com diagramas visuais |
+| **Server Hardening** | [`/hardening`](https://sshtoolkit.otaviomiranda.com.br/hardening/) | sshd_config endurecido com score de seguranca |
+| **Client Config** | [`/config`](https://sshtoolkit.otaviomiranda.com.br/config/) | ~/.ssh/config com ProxyJump, drag-reorder e import |
+| **Key Generator** | [`/keygen`](https://sshtoolkit.otaviomiranda.com.br/keygen/) | Chaves Ed25519/RSA via Web Crypto API |
 
 ### Tunnel Builder
 
 Monte comandos de SSH Tunnel com diagramas visuais.
 
-- Local Forward (`-L`) — traga uma porta remota pra sua maquina
-- Remote Forward (`-R`) — exponha uma porta local pelo servidor
-- Dynamic Forward (`-D`) — proxy SOCKS pelo servidor SSH
+- Local Forward (`-L`), Remote Forward (`-R`), Dynamic/SOCKS (`-D`)
+- Multiplos tuneis em um unico comando
 - Flags: `-N`, `-f`, `-C`, `ExitOnForwardFailure`, keepalive
 - Saida: comando SSH, `autossh` persistente, bloco `~/.ssh/config`
-- Diagrama visual do fluxo do tunel
+- Diagrama visual por tunel
+- Cards de caso de uso: "Acessar banco remoto", "Expor servidor local", "Navegar via proxy"
 
-### Server Hardening *(em breve)*
+### Server Hardening
 
-Gere um `sshd_config` endurecido com score de seguranca, presets
-(Paranoico / Equilibrado / Permissivo) e script de aplicacao.
+Gere um `sshd_config` endurecido com score de seguranca.
 
-### Client Config *(em breve)*
+- Presets: Paranoico (A+), Equilibrado (A), Permissivo (B)
+- Score de seguranca 0-100 com nota A-F
+- Warnings por severidade (danger, warn, info)
+- Script de aplicacao (backup + test + restart)
+- Tooltips explicando cada diretiva
 
-Monte seu `~/.ssh/config` com hosts, ProxyJump chains, forwards e wildcards.
-Importe um config existente e edite visualmente.
+### Client Config
 
-### Key Generator *(em breve)*
+Monte seu `~/.ssh/config` visualmente.
+
+- CRUD de hosts com cards colapsaveis
+- ProxyJump chain visualization (Voce → bastion → destino)
+- Drag-and-drop para reordenar (a ordem importa no SSH)
+- Import: cole um config existente e edite visualmente
+- Opcoes avancadas: ForwardAgent, LocalForward, RemoteForward, etc.
+
+### Key Generator
 
 Gere pares de chaves Ed25519 e RSA direto no navegador via Web Crypto API.
+
+- Ed25519 (recomendado), RSA 2048, RSA 4096
+- Download individual ou ZIP com README de instrucoes
+- Fingerprint SHA256
+- Comando `ssh-copy-id` e permissoes (`chmod`) prontos para copiar
+- Tooltips explicando cada tipo de chave
 
 ---
 

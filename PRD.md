@@ -378,47 +378,56 @@ resemblance. Visitors to both sites will know they're from the same author.
 
 ## 9. Implementation Phases
 
-### Phase 1 — Foundation + Tunnels
+### Phase 1 — Foundation + Tunnels ✓
 
-- [ ] Project setup (Astro, TS, Vitest, GitHub Pages deploy)
-- [ ] Shared layout, nav, theme (CSS tokens)
-- [ ] Home page (landing + cards)
-- [ ] Tunnel command builder (Local -L, Remote -R, Dynamic -D)
-- [ ] Visual tunnel diagram
-- [ ] Extra flags (-N, -f, -C, keepalive, ExitOnForwardFailure, autossh)
-- [ ] Multiple tunnels support
-- [ ] Equivalent `~/.ssh/config` block output
-- [ ] Tests for command generation
+- [x] Project setup (Astro, TS, Vitest, GitHub Pages deploy)
+- [x] Shared layout, nav, theme (CSS tokens)
+- [x] Home page (landing + cards)
+- [x] Tunnel command builder (Local -L, Remote -R, Dynamic -D)
+- [x] Visual tunnel diagram
+- [x] Extra flags (-N, -f, -C, keepalive, ExitOnForwardFailure, autossh)
+- [x] Multiple tunnels support
+- [x] Equivalent `~/.ssh/config` block output
+- [x] Tests for command generation
 
 **Why tunnels first:** companion to the SSH Tunnels article/video
 (published 2026-03-25). Exercises all shared components (form → preview →
 copy pattern) without crypto complexity.
 
-### Phase 2 — Server Hardening
+### Phase 2 — Server Hardening ✓
 
-- [ ] Server Hardening page (full feature set)
-- [ ] Presets (Paranoid / Balanced / Permissive)
-- [ ] Security score system
-- [ ] Tests for sshd_config generation
+- [x] Server Hardening page (full feature set)
+- [x] Presets (Paranoid / Balanced / Permissive)
+- [x] Security score system
+- [x] Tests for sshd_config generation
 
-### Phase 3 — Client Config
+### Phase 3 — Client Config ✓
 
-- [ ] Client Config page
-- [ ] Host entry CRUD
-- [ ] ProxyJump chain visualization
-- [ ] Wildcard host support
-- [ ] Import/parse existing config
-- [ ] Tests for config generation and parser
+- [x] Client Config page
+- [x] Host entry CRUD
+- [x] ProxyJump chain visualization
+- [x] Wildcard host support
+- [x] Import/parse existing config
+- [x] Drag-and-drop reorder
+- [x] Tests for config generation and parser
 
-### Phase 4 — Key Generator
+### Phase 4 — Key Generator ✓
 
-- [ ] Ed25519 key generation via Web Crypto
-- [ ] OpenSSH format export (PKCS8 → OpenSSH conversion)
-- [ ] RSA key generation (2048/4096)
-- [ ] Fingerprint display
-- [ ] Download keys (individual + ZIP)
-- [ ] Tests for key generation and format conversion
+- [x] Ed25519 key generation via Web Crypto
+- [x] OpenSSH format export (PKCS8 → OpenSSH conversion)
+- [x] RSA key generation (2048/4096)
+- [x] Fingerprint display
+- [x] Download keys (individual + ZIP)
+- [x] Tests for key generation and format conversion
 - [ ] _(V2)_ Passphrase encryption support
+
+### Cross-cutting (added post-PRD)
+
+- [x] Contextual tooltips across all pages (beginner UX)
+- [x] Use-case cards with guided scenarios (tunnels, keygen, config)
+- [x] "What is SSH?" collapsible explainer on home page
+- [x] Open Graph image for social media previews
+- [x] File permissions section on keygen page
 
 ---
 
@@ -477,14 +486,14 @@ src/
 
 ## 11. Open Questions
 
-| #   | Question                                                                                  | Impact                                                  |
-| --- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| 1   | **Accent color:** amber `#ffb000` or cyan `#00d4ff`?                                      | Visual identity                                         |
-| 2   | **`authorized_keys` manager?** Tool to build/edit `authorized_keys` file from public keys | Could be a 5th page or merged into keygen               |
-| 3   | **SSH agent commands?** Generate `ssh-agent` + `ssh-add` commands                         | Small scope, could live on keygen page                  |
-| 4   | **SCP/rsync helper?** Generate file transfer commands                                     | Scope creep risk, but useful                            |
-| 5   | **Repo rename?** Current repo is `sshconfgen`, deploy domain is `sshtoolkit`              | Cosmetic, can keep repo name and just CNAME differently |
-| 6   | **i18n?** PT-BR + EN?                                                                     | Significant effort, recommend EN-only for V1            |
+| #   | Question                                                                                  | Impact                                                  | Status |
+| --- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------- | ------ |
+| 1   | **Accent color:** amber `#ffb000` or cyan `#00d4ff`?                                      | Visual identity                                         | Resolved: amber `#ffb000` |
+| 2   | **`authorized_keys` manager?** Tool to build/edit `authorized_keys` file from public keys | Could be a 5th page or merged into keygen               | Open |
+| 3   | **SSH agent commands?** Generate `ssh-agent` + `ssh-add` commands                         | Small scope, could live on keygen page                  | Open |
+| 4   | **SCP/rsync helper?** Generate file transfer commands                                     | Scope creep risk, but useful                            | Open |
+| 5   | **Repo rename?** Current repo is `sshconfgen`, deploy domain is `sshtoolkit`              | Cosmetic, can keep repo name and just CNAME differently | Keeping as-is |
+| 6   | **i18n?** PT-BR + EN?                                                                     | Significant effort, recommend EN-only for V1            | PT-BR only for V1 |
 
 ---
 
