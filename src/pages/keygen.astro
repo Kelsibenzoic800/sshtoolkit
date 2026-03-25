@@ -27,16 +27,16 @@ import Tooltip from '../components/Tooltip.astro';
   <section class="section">
     <div class="type-selector">
       <button class="type-btn type-btn--active" data-type="ed25519">
-        <span class="type-btn__flag">Ed25519 <Tooltip text="Algoritmo moderno de curva elíptica. Chaves menores, mais rápido e mais seguro. Recomendado a menos que precise de compatibilidade com sistemas antigos." /></span>
-        <span class="type-btn__label">Recomendado</span>
+        <span class="type-btn__flag">Ed25519</span>
+        <span class="type-btn__label">Recomendado <Tooltip text="Algoritmo moderno de curva elíptica. Chaves menores, mais rápido e mais seguro. Recomendado a menos que precise de compatibilidade com sistemas antigos." /></span>
       </button>
       <button class="type-btn" data-type="rsa-2048">
-        <span class="type-btn__flag">RSA 2048 <Tooltip text="Amplamente compatível, mas chaves maiores. Segurança aceitável para a maioria dos usos. Escolha se o servidor não suporta Ed25519." /></span>
-        <span class="type-btn__label">Compatibilidade</span>
+        <span class="type-btn__flag">RSA 2048</span>
+        <span class="type-btn__label">Compatibilidade <Tooltip text="Amplamente compatível, mas chaves maiores. Segurança aceitável para a maioria dos usos. Escolha se o servidor não suporta Ed25519." /></span>
       </button>
       <button class="type-btn" data-type="rsa-4096">
-        <span class="type-btn__flag">RSA 4096 <Tooltip text="Tamanho máximo de chave RSA. Operações mais lentas. Prefira Ed25519 a menos que precise de RSA especificamente." /></span>
-        <span class="type-btn__label">Máxima segurança</span>
+        <span class="type-btn__flag">RSA 4096</span>
+        <span class="type-btn__label">Máxima segurança <Tooltip text="Tamanho máximo de chave RSA. Operações mais lentas. Prefira Ed25519 a menos que precise de RSA especificamente." /></span>
       </button>
     </div>
   </section>

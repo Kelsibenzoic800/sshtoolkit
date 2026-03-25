@@ -21,16 +21,16 @@ import Tooltip from '../components/Tooltip.astro';
   <section class="section">
     <div class="type-selector" id="type-selector">
       <button class="type-btn type-btn--active" data-type="local">
-        <span class="type-btn__flag">-L <Tooltip text="Encaminha uma porta da sua máquina para um destino remoto através do servidor SSH. Ex: acessar um banco de dados remoto como se fosse local." /></span>
-        <span class="type-btn__label">Local Forward</span>
+        <span class="type-btn__flag">-L</span>
+        <span class="type-btn__label">Local Forward <Tooltip text="Encaminha uma porta da sua máquina para um destino remoto através do servidor SSH. Ex: acessar um banco de dados remoto como se fosse local." /></span>
       </button>
       <button class="type-btn" data-type="remote">
-        <span class="type-btn__flag">-R <Tooltip text="Expõe uma porta no servidor SSH que redireciona de volta para a sua máquina. Ex: permitir que colegas acessem seu servidor de desenvolvimento." /></span>
-        <span class="type-btn__label">Remote Forward</span>
+        <span class="type-btn__flag">-R</span>
+        <span class="type-btn__label">Remote Forward <Tooltip text="Expõe uma porta no servidor SSH que redireciona de volta para a sua máquina. Ex: permitir que colegas acessem seu servidor de desenvolvimento." /></span>
       </button>
       <button class="type-btn" data-type="dynamic">
-        <span class="type-btn__flag">-D <Tooltip text="Cria um proxy SOCKS na sua máquina. Todo tráfego configurado para usar o proxy passa pelo servidor SSH. Útil para navegar como se estivesse na rede remota." /></span>
-        <span class="type-btn__label">Dynamic (SOCKS)</span>
+        <span class="type-btn__flag">-D</span>
+        <span class="type-btn__label">Dynamic (SOCKS) <Tooltip text="Cria um proxy SOCKS na sua máquina. Todo tráfego configurado para usar o proxy passa pelo servidor SSH. Útil para navegar como se estivesse na rede remota." /></span>
       </button>
     </div>
   </section>
