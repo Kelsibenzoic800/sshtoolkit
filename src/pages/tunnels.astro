@@ -42,45 +42,10 @@ import Tooltip from '../components/Tooltip.astro';
     </div>
   </section>
 
-  <!-- Tunnel Type Selector -->
-  <section class="section">
-    <div class="type-selector" id="type-selector">
-      <button class="type-btn type-btn--active" data-type="local">
-        <span class="type-btn__flag">-L</span>
-        <span class="type-btn__label">Local Forward <Tooltip text="Encaminha uma porta da sua máquina para um destino remoto através do servidor SSH. Ex: acessar um banco de dados remoto como se fosse local." /></span>
-      </button>
-      <button class="type-btn" data-type="remote">
-        <span class="type-btn__flag">-R</span>
-        <span class="type-btn__label">Remote Forward <Tooltip text="Expõe uma porta no servidor SSH que redireciona de volta para a sua máquina. Ex: permitir que colegas acessem seu servidor de desenvolvimento." /></span>
-      </button>
-      <button class="type-btn" data-type="dynamic">
-        <span class="type-btn__flag">-D</span>
-        <span class="type-btn__label">Dynamic (SOCKS) <Tooltip text="Cria um proxy SOCKS na sua máquina. Todo tráfego configurado para usar o proxy passa pelo servidor SSH. Útil para navegar como se estivesse na rede remota." /></span>
-      </button>
-    </div>
-  </section>
-
-  <!-- Tunnel Parameters -->
-  <section class="section card" id="tunnel-form">
-    <h2 class="section__title">Tunnel</h2>
-    <div class="form-grid">
-      <div class="form-group">
-        <label for="listen-port" id="label-listen-port">Porta de escuta (sua máquina)</label>
-        <input type="number" id="listen-port" value="8080" min="1" max="65535" />
-      </div>
-      <div class="form-group">
-        <label for="bind-addr">Bind Address <span class="text-muted">(opcional)</span> <Tooltip text="Em qual interface escutar. 'localhost' (padrão) = só local. '0.0.0.0' = todas as interfaces (use com cautela — expõe a porta na rede)." /></label>
-        <input type="text" id="bind-addr" placeholder="localhost" />
-      </div>
-      <div class="form-group" id="group-dest-host">
-        <label for="dest-host" id="label-dest-host">Host de destino (visto do servidor)</label>
-        <input type="text" id="dest-host" value="localhost" />
-      </div>
-      <div class="form-group" id="group-dest-port">
-        <label for="dest-port" id="label-dest-port">Porta de destino</label>
-        <input type="number" id="dest-port" value="8080" min="1" max="65535" />
-      </div>
-    </div>
+  <!-- Tunnel Entries -->
+  <section class="section" id="tunnels-section">
+    <div id="tunnels-container"></div>
+    <button class="btn btn--accent btn--sm" id="btn-add-tunnel" style="margin-top: 0.5rem;">+ Adicionar túnel</button>
   </section>
 
   <!-- SSH Connection -->
@@ -151,16 +116,7 @@ import Tooltip from '../components/Tooltip.astro';
   <!-- Diagram -->
   <section class="section" id="diagram-section">
     <h2 class="section__title">Como funciona</h2>
-    <div class="diagram card" id="tunnel-diagram">
-      <div class="diagram__flow">
-        <span class="diagram__node diagram__node--left" id="diag-left">localhost:8080</span>
-        <span class="diagram__arrow">&mdash;&mdash; SSH &mdash;&mdash;&gt;</span>
-        <span class="diagram__node diagram__node--middle" id="diag-middle">server</span>
-        <span class="diagram__arrow">&mdash;&mdash;&gt;</span>
-        <span class="diagram__node diagram__node--right" id="diag-right">localhost:8080</span>
-      </div>
-      <p class="diagram__desc" id="diag-desc"></p>
-    </div>
+    <div id="diagrams-container"></div>
   </section>
 
   <!-- Output: SSH Command -->
@@ -230,46 +186,71 @@ import Tooltip from '../components/Tooltip.astro';
     letter-spacing: 0.05em;
   }
 
-  /* Type Selector */
-  .type-selector {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .type-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 1rem;
+  /* Tunnel Entry */
+  .tunnel-entry {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .tunnel-entry__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .tunnel-entry__type-btns {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .tunnel-entry__type-btn {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-secondary);
+    color: var(--text-muted);
     cursor: pointer;
     transition: all var(--transition);
-    font-family: var(--font-mono);
   }
 
-  .type-btn:hover {
+  .tunnel-entry__type-btn:hover {
     border-color: var(--accent);
-    box-shadow: var(--glow-sm);
-  }
-
-  .type-btn--active {
-    border-color: var(--accent);
-    background: var(--accent-glow);
-  }
-
-  .type-btn__flag {
-    font-size: 1.5rem;
-    font-weight: 700;
     color: var(--accent);
   }
 
-  .type-btn__label {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+  .tunnel-entry__type-btn--active {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    color: var(--accent);
+  }
+
+  .tunnel-entry__remove {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    background: none;
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    color: var(--danger);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .tunnel-entry__remove:hover {
+    background: var(--danger-glow);
+  }
+
+  .tunnel-entry__warning {
+    font-size: 0.75rem;
+    color: var(--danger);
+    margin-top: 0.5rem;
   }
 
   /* Options Grid */
@@ -280,6 +261,10 @@ import Tooltip from '../components/Tooltip.astro';
   }
 
   /* Diagram */
+  .diagram {
+    margin-bottom: 0.5rem;
+  }
+
   .diagram__flow {
     display: flex;
     align-items: center;
@@ -354,10 +339,6 @@ import Tooltip from '../components/Tooltip.astro';
   }
 
   @media (max-width: 640px) {
-    .type-selector {
-      flex-direction: column;
-    }
-
     .options-grid {
       grid-template-columns: 1fr;
     }
@@ -370,6 +351,10 @@ import Tooltip from '../components/Tooltip.astro';
       flex-direction: column;
       align-items: flex-start;
     }
+
+    .tunnel-entry__type-btns {
+      flex-wrap: wrap;
+    }
   }
 </style>
 
@@ -381,123 +366,150 @@ import Tooltip from '../components/Tooltip.astro';
     generateDiagram,
   } from '../lib/tunnel-generator';
   import type {
-    TunnelConfig,
     TunnelSpec,
     TunnelOptions,
     TunnelType,
   } from '../lib/types';
   import { copyToClipboard } from '../lib/clipboard';
 
-  let currentType: TunnelType = 'local';
+  // --- State ---
+  interface TunnelEntry {
+    id: number;
+    type: TunnelType;
+    listenPort: number;
+    bindAddr: string;
+    destHost: string;
+    destPort: number;
+  }
 
-  // --- DOM refs ---
+  let nextId = 1;
+  let tunnelEntries: TunnelEntry[] = [];
+
   const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
-  const typeBtns = document.querySelectorAll<HTMLButtonElement>('.type-btn');
-
-  // Unified fields
-  const listenPort = $<HTMLInputElement>('listen-port');
-  const bindAddr = $<HTMLInputElement>('bind-addr');
-  const destHost = $<HTMLInputElement>('dest-host');
-  const destPort = $<HTMLInputElement>('dest-port');
-  const groupDestHost = $<HTMLElement>('group-dest-host');
-  const groupDestPort = $<HTMLElement>('group-dest-port');
-  const labelListenPort = $<HTMLElement>('label-listen-port');
-  const labelDestHost = $<HTMLElement>('label-dest-host');
-  const labelDestPort = $<HTMLElement>('label-dest-port');
-
-  // Outputs
+  const tunnelsContainer = $<HTMLElement>('tunnels-container');
+  const diagramsContainer = $<HTMLElement>('diagrams-container');
   const outputCommand = $<HTMLElement>('output-command');
   const outputAutossh = $<HTMLElement>('output-autossh');
   const outputConfig = $<HTMLElement>('output-config');
 
-  // Diagram
-  const diagLeft = $<HTMLElement>('diag-left');
-  const diagMiddle = $<HTMLElement>('diag-middle');
-  const diagRight = $<HTMLElement>('diag-right');
-  const diagDesc = $<HTMLElement>('diag-desc');
-
-  // --- Label configs per type ---
-  const labelConfig = {
-    local: {
-      listenPort: 'Porta de escuta (sua máquina)',
-      destHost: 'Host de destino (visto do servidor)',
-      destPort: 'Porta de destino',
-      showDest: true,
-      defaults: { listenPort: 8080, destHost: 'localhost', destPort: 8080 },
-    },
-    remote: {
-      listenPort: 'Porta de escuta (no servidor)',
-      destHost: 'Host de destino (sua máquina)',
-      destPort: 'Porta de destino',
-      showDest: true,
-      defaults: { listenPort: 8080, destHost: 'localhost', destPort: 3000 },
-    },
-    dynamic: {
-      listenPort: 'Porta SOCKS (sua máquina)',
-      destHost: '',
-      destPort: '',
-      showDest: false,
-      defaults: { listenPort: 1080, destHost: 'localhost', destPort: 0 },
-    },
+  // --- Defaults per type ---
+  const typeDefaults: Record<TunnelType, { listenPort: number; destHost: string; destPort: number }> = {
+    local: { listenPort: 8080, destHost: 'localhost', destPort: 8080 },
+    remote: { listenPort: 8080, destHost: 'localhost', destPort: 3000 },
+    dynamic: { listenPort: 1080, destHost: '', destPort: 0 },
   };
 
-  // --- Type switching ---
-  function switchType(type: TunnelType) {
-    currentType = type;
-    const cfg = labelConfig[type];
+  const typeLabels: Record<TunnelType, { listen: string; dest: string; destPort: string }> = {
+    local: { listen: 'Porta local', dest: 'Host remoto', destPort: 'Porta remota' },
+    remote: { listen: 'Porta remota', dest: 'Host local', destPort: 'Porta local' },
+    dynamic: { listen: 'Porta SOCKS', dest: '', destPort: '' },
+  };
 
-    labelListenPort.textContent = cfg.listenPort;
-    labelDestHost.textContent = cfg.destHost;
-    labelDestPort.textContent = cfg.destPort;
-    groupDestHost.hidden = !cfg.showDest;
-    groupDestPort.hidden = !cfg.showDest;
+  // --- Create entry ---
+  function createEntry(type: TunnelType): TunnelEntry {
+    const d = typeDefaults[type];
+    return { id: nextId++, type, listenPort: d.listenPort, bindAddr: '', destHost: d.destHost, destPort: d.destPort };
+  }
 
-    listenPort.value = String(cfg.defaults.listenPort);
-    destHost.value = cfg.defaults.destHost;
-    destPort.value = String(cfg.defaults.destPort);
-    bindAddr.value = '';
-
-    typeBtns.forEach((b) => b.classList.remove('type-btn--active'));
-
+  // --- Render all tunnel entries ---
+  function renderEntries() {
+    tunnelsContainer.innerHTML = '';
+    for (const entry of tunnelEntries) {
+      tunnelsContainer.appendChild(buildEntryEl(entry));
+    }
     update();
   }
 
-  typeBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const type = btn.dataset.type as TunnelType;
-      switchType(type);
-      btn.classList.add('type-btn--active');
-    });
-  });
+  function buildEntryEl(entry: TunnelEntry): HTMLElement {
+    const el = document.createElement('div');
+    el.className = 'tunnel-entry';
+    const showDest = entry.type !== 'dynamic';
+    const labels = typeLabels[entry.type];
+    const canRemove = tunnelEntries.length > 1;
 
-  // --- Build config from form ---
-  function getTunnelSpec(): TunnelSpec {
-    const bind = bindAddr.value || undefined;
-    switch (currentType) {
-      case 'local':
-        return {
-          type: 'local',
-          localPort: Number(listenPort.value) || 8080,
-          remoteHost: destHost.value || 'localhost',
-          remotePort: Number(destPort.value) || 8080,
-          bindAddress: bind,
-        };
-      case 'remote':
-        return {
-          type: 'remote',
-          remotePort: Number(listenPort.value) || 8080,
-          localHost: destHost.value || 'localhost',
-          localPort: Number(destPort.value) || 3000,
-          bindAddress: bind,
-        };
-      case 'dynamic':
-        return {
-          type: 'dynamic',
-          localPort: Number(listenPort.value) || 1080,
-          bindAddress: bind,
-        };
-    }
+    el.innerHTML = `
+      <div class="tunnel-entry__header">
+        <div class="tunnel-entry__type-btns">
+          ${(['local', 'remote', 'dynamic'] as TunnelType[]).map(t =>
+            `<button class="tunnel-entry__type-btn${t === entry.type ? ' tunnel-entry__type-btn--active' : ''}" data-entry-type="${t}">${t === 'local' ? '-L Local' : t === 'remote' ? '-R Remote' : '-D Dynamic'}</button>`
+          ).join('')}
+        </div>
+        ${canRemove ? `<button class="tunnel-entry__remove" data-remove="${entry.id}">Remover</button>` : ''}
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>${labels.listen}</label>
+          <input type="number" data-field="listenPort" value="${entry.listenPort}" min="1" max="65535" />
+        </div>
+        <div class="form-group">
+          <label>Bind Address <span class="text-muted">(opcional)</span></label>
+          <input type="text" data-field="bindAddr" value="${entry.bindAddr}" placeholder="localhost" />
+        </div>
+        <div class="form-group" ${showDest ? '' : 'hidden'}>
+          <label>${labels.dest}</label>
+          <input type="text" data-field="destHost" value="${entry.destHost}" />
+        </div>
+        <div class="form-group" ${showDest ? '' : 'hidden'}>
+          <label>${labels.destPort}</label>
+          <input type="number" data-field="destPort" value="${entry.destPort}" min="1" max="65535" />
+        </div>
+      </div>
+      <div class="tunnel-entry__warning" data-warning="${entry.id}" hidden></div>
+    `;
+
+    // Type switching
+    el.querySelectorAll<HTMLButtonElement>('.tunnel-entry__type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newType = btn.dataset.entryType as TunnelType;
+        entry.type = newType;
+        const d = typeDefaults[newType];
+        entry.listenPort = d.listenPort;
+        entry.destHost = d.destHost;
+        entry.destPort = d.destPort;
+        entry.bindAddr = '';
+        renderEntries();
+      });
+    });
+
+    // Remove
+    const removeBtn = el.querySelector(`[data-remove="${entry.id}"]`);
+    removeBtn?.addEventListener('click', () => {
+      tunnelEntries = tunnelEntries.filter(e => e.id !== entry.id);
+      renderEntries();
+    });
+
+    // Field changes
+    el.querySelectorAll<HTMLInputElement>('[data-field]').forEach(input => {
+      const handler = () => {
+        const field = input.dataset.field!;
+        if (field === 'listenPort' || field === 'destPort') {
+          (entry as Record<string, unknown>)[field] = Number(input.value) || 0;
+        } else {
+          (entry as Record<string, unknown>)[field] = input.value;
+        }
+        update();
+      };
+      input.addEventListener('input', handler);
+      input.addEventListener('change', handler);
+    });
+
+    return el;
+  }
+
+  // --- Build specs from entries ---
+  function getSpecs(): TunnelSpec[] {
+    return tunnelEntries.map(e => {
+      const bind = e.bindAddr || undefined;
+      switch (e.type) {
+        case 'local':
+          return { type: 'local' as const, localPort: e.listenPort, remoteHost: e.destHost || 'localhost', remotePort: e.destPort, bindAddress: bind };
+        case 'remote':
+          return { type: 'remote' as const, remotePort: e.listenPort, localHost: e.destHost || 'localhost', localPort: e.destPort, bindAddress: bind };
+        case 'dynamic':
+          return { type: 'dynamic' as const, localPort: e.listenPort, bindAddress: bind };
+      }
+    });
   }
 
   function getOptions(): TunnelOptions {
@@ -516,33 +528,81 @@ import Tooltip from '../components/Tooltip.astro';
     };
   }
 
-  function getConfig(): TunnelConfig {
-    return {
-      tunnels: [getTunnelSpec()],
-      options: getOptions(),
-    };
+  // --- Warnings ---
+  function checkWarnings() {
+    // Check duplicate local ports
+    const localPorts = new Map<number, number[]>();
+    for (const e of tunnelEntries) {
+      if (e.type === 'local' || e.type === 'dynamic') {
+        const ids = localPorts.get(e.listenPort) || [];
+        ids.push(e.id);
+        localPorts.set(e.listenPort, ids);
+      }
+    }
+
+    // Check multiple dynamic
+    const dynamicCount = tunnelEntries.filter(e => e.type === 'dynamic').length;
+
+    for (const e of tunnelEntries) {
+      const warningEl = document.querySelector(`[data-warning="${e.id}"]`) as HTMLElement | null;
+      if (!warningEl) continue;
+
+      const warnings: string[] = [];
+      const portIds = localPorts.get(e.listenPort);
+      if (portIds && portIds.length > 1 && (e.type === 'local' || e.type === 'dynamic')) {
+        warnings.push(`Porta local ${e.listenPort} usada em mais de um túnel.`);
+      }
+      if (e.type === 'dynamic' && dynamicCount > 1) {
+        warnings.push('Apenas um túnel dinâmico (-D) por comando é recomendado.');
+      }
+
+      warningEl.hidden = warnings.length === 0;
+      warningEl.textContent = warnings.join(' ');
+    }
   }
 
   // --- Update outputs ---
   function update() {
-    const config = getConfig();
+    const tunnels = getSpecs();
+    const options = getOptions();
+    const config = { tunnels, options };
     const alias = ($<HTMLInputElement>('host-alias')).value || 'my-tunnel';
 
     outputCommand.textContent = generateSshCommand(config);
     outputAutossh.textContent = generateAutosshCommand(config);
     outputConfig.textContent = generateSshConfig(config, alias);
 
-    // Diagram
-    const tunnel = config.tunnels[0];
-    const diagram = generateDiagram(tunnel, config.options);
-    diagLeft.textContent = diagram.left;
-    diagMiddle.textContent = diagram.middle;
-    diagRight.textContent = diagram.right;
-    diagDesc.textContent = diagram.description;
+    // Diagrams
+    diagramsContainer.innerHTML = '';
+    for (const tunnel of tunnels) {
+      const diagram = generateDiagram(tunnel, options);
+      const div = document.createElement('div');
+      div.className = 'diagram card';
+      div.innerHTML = `
+        <div class="diagram__flow">
+          <span class="diagram__node diagram__node--left">${diagram.left}</span>
+          <span class="diagram__arrow">&mdash;&mdash; SSH &mdash;&mdash;&gt;</span>
+          <span class="diagram__node diagram__node--middle">${diagram.middle}</span>
+          <span class="diagram__arrow">&mdash;&mdash;&gt;</span>
+          <span class="diagram__node diagram__node--right">${diagram.right}</span>
+        </div>
+        <p class="diagram__desc">${diagram.description}</p>
+      `;
+      diagramsContainer.appendChild(div);
+    }
+
+    checkWarnings();
   }
 
-  // --- Listen to all inputs ---
-  document.querySelectorAll('input').forEach((input) => {
+  // --- Add tunnel ---
+  $<HTMLButtonElement>('btn-add-tunnel').addEventListener('click', () => {
+    tunnelEntries.push(createEntry('local'));
+    renderEntries();
+  });
+
+  // --- Listen to SSH/options inputs ---
+  document.querySelectorAll<HTMLInputElement>('#ssh-server, #ssh-user, #ssh-port, #jump-host, #identity-file, #opt-no-shell, #opt-background, #opt-compression, #opt-exit-failure, #alive-interval, #alive-count, #host-alias').forEach(input => {
+    if (!input) return;
     input.addEventListener('input', update);
     input.addEventListener('change', update);
   });
@@ -565,19 +625,22 @@ import Tooltip from '../components/Tooltip.astro';
   const usecaseBanner = $<HTMLElement>('usecase-banner');
   const usecaseBannerText = $<HTMLElement>('usecase-banner-text');
 
-  const usecases: Record<string, { type: TunnelType; listenPort: number; destHost: string; destPort: number; server: string; user: string; alias: string; banner: string }> = {
+  interface UsecaseEntry { type: TunnelType; listenPort: number; destHost: string; destPort: number }
+  interface Usecase { tunnels: UsecaseEntry[]; server: string; user: string; alias: string; banner: string }
+
+  const usecases: Record<string, Usecase> = {
     'remote-db': {
-      type: 'local', listenPort: 5432, destHost: 'db.internal', destPort: 5432,
+      tunnels: [{ type: 'local', listenPort: 5432, destHost: 'db.internal', destPort: 5432 }],
       server: 'bastion.exemplo.com', user: 'deploy', alias: 'db-tunnel',
       banner: 'Exemplo carregado — após conectar, use "psql -h localhost -p 5432" para acessar o banco remoto como se fosse local.',
     },
     'expose-local': {
-      type: 'remote', listenPort: 8080, destHost: 'localhost', destPort: 3000,
+      tunnels: [{ type: 'remote', listenPort: 8080, destHost: 'localhost', destPort: 3000 }],
       server: 'servidor.exemplo.com', user: 'deploy', alias: 'expose-dev',
       banner: 'Exemplo carregado — seu colega poderá acessar seu app local em servidor.exemplo.com:8080.',
     },
     'socks-proxy': {
-      type: 'dynamic', listenPort: 1080, destHost: '', destPort: 0,
+      tunnels: [{ type: 'dynamic', listenPort: 1080, destHost: '', destPort: 0 }],
       server: 'proxy.exemplo.com', user: 'usuario', alias: 'socks-proxy',
       banner: 'Exemplo carregado — configure seu navegador para usar proxy SOCKS5 em localhost:1080.',
     },
@@ -588,28 +651,20 @@ import Tooltip from '../components/Tooltip.astro';
       const uc = usecases[card.dataset.usecase!];
       if (!uc) return;
 
-      // Switch type (this resets fields and updates labels)
-      switchType(uc.type);
-      typeBtns.forEach((b) => {
-        b.classList.toggle('type-btn--active', b.dataset.type === uc.type);
-      });
+      tunnelEntries = uc.tunnels.map(t => ({
+        id: nextId++, type: t.type, listenPort: t.listenPort,
+        bindAddr: '', destHost: t.destHost, destPort: t.destPort,
+      }));
 
-      // Fill fields
-      listenPort.value = String(uc.listenPort);
-      destHost.value = uc.destHost;
-      destPort.value = String(uc.destPort);
       ($<HTMLInputElement>('ssh-server')).value = uc.server;
       ($<HTMLInputElement>('ssh-user')).value = uc.user;
       ($<HTMLInputElement>('host-alias')).value = uc.alias;
 
-      // Show banner
       usecaseBannerText.textContent = uc.banner;
       usecaseBanner.hidden = false;
 
-      update();
-
-      // Scroll to form
-      $<HTMLElement>('tunnel-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      renderEntries();
+      $<HTMLElement>('tunnels-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 
@@ -617,6 +672,7 @@ import Tooltip from '../components/Tooltip.astro';
     usecaseBanner.hidden = true;
   });
 
-  // Initial render
-  update();
+  // --- Initial state: one local tunnel ---
+  tunnelEntries.push(createEntry('local'));
+  renderEntries();
 </script>
