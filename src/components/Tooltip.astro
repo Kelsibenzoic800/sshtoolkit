@@ -1,0 +1,11 @@
+---
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+---
+
+<span class="tooltip">
+  <button class="tooltip__trigger" type="button" aria-expanded="false" aria-label="Help">?</button>
+  <span class="tooltip__content" role="tooltip">{text}</span>
+</span>
